@@ -20,13 +20,11 @@ ARG USER_UID=1000
 ARG USER_GID=$USER_UID
 
 #
-# Install needed packages, setup user anda clean up.
-RUN  dpkg --add-architecture i386 \
-	&& apt update \
+# Install needed packages, setup user and clean up.
+RUN  apt update \
 	&& apt install -y sudo \
 	&& apt install -y openjdk-17-jdk-headless --no-install-recommends \
 	&& apt install -y wget curl git xz-utils zip unzip --no-install-recommends \
-	&& apt install -y lib32stdc++6 lib32z1 \
 	# Clean Up
 	&& apt-get autoremove -y \
 	&& apt-get clean -y \
