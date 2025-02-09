@@ -24,12 +24,13 @@ ARG USER_GID=$USER_UID
 RUN  apt update \
 	&& apt install -y sudo \
 	&& apt install -y openjdk-17-jdk-headless --no-install-recommends \
-	&& apt install -y wget curl git xz-utils zip unzip --no-install-recommends 
-	
+	&& apt install -y wget curl git xz-utils zip unzip --no-install-recommends \
+	&& apt install -y lib32stdc++6 lib32z1 \
 	# Clean Up
-RUN	apt-get autoremove -y \
+	&& apt-get autoremove -y \
 	&& apt-get clean -y \
 	&& rm -rf /var/lib/apt/lists/* 
+	
 	# Create a non-root user to use if preferred - see https://aka.ms/vscode-remote/containers/non-root-user.
 	# [Optional] Add sudo support for the non-root user
 RUN if ! getent group $USER_GID; then groupadd --gid $USER_GID $USERNAME; fi \
@@ -66,18 +67,18 @@ RUN curl -C - --output android-sdk-tools.zip https://dl.google.com/android/repos
 RUN curl -C - --output flutter.tar.xz https://storage.googleapis.com/flutter_infra_release/releases/${FLUTTER_CHANNEL}/linux/flutter_linux_${FLUTTER_VERSION}-${FLUTTER_CHANNEL}.tar.xz 
 
 # Install Android SDK	
-RUN mkdir -p ${ANDROID_HOME}/ \
-	&& unzip -q android-sdk-tools.zip -d ${ANDROID_HOME}/cmdline-tools/ \
-	&& yes | sdkmanager --licenses \
+RUN mkdir -p ${ANDROID_HOME}/cmdline-tools/latest \
+	&& unzip -q android-sdk-tools.zip -d ${ANDROID_HOME}/cmdline-tools/latest \
+	&& yes | ${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager --licenses \
 	&& touch $HOME/.android/repositories.cfg \
-	&& sdkmanager platform-tools \
-	&& sdkmanager emulator \
-	&& sdkmanager "platforms;android-${ANDROID_PLATFORM_VERSION}" "build-tools;$ANDROID_BUILD_TOOLS_VERSION" \
-	&& sdkmanager --install "cmdline-tools;latest" 
+	&& ${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager platform-tools \
+	&& ${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager emulator \
+	&& ${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager "platforms;android-${ANDROID_PLATFORM_VERSION}" "build-tools;$ANDROID_BUILD_TOOLS_VERSION" \
+	&& ${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager --install "cmdline-tools;latest" 
 
 # Create Android Emulator	
-RUN  sdkmanager "system-images;android-${ANDROID_PLATFORM_VERSION};google_apis;x86_64" \
-	 && echo "no" | avdmanager create avd -n Android${ANDROID_PLATFORM_VERSION} -k "system-images;android-${ANDROID_PLATFORM_VERSION};google_apis;x86_64"
+RUN ${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager "system-images;android-${ANDROID_PLATFORM_VERSION};google_apis;x86_64" \
+	&& echo "no" | ${ANDROID_HOME}/cmdline-tools/latest/bin/avdmanager create avd -n Android${ANDROID_PLATFORM_VERSION} -k "system-images;android-${ANDROID_PLATFORM_VERSION};google_apis;x86_64"
 
 
 # Install Flutter SDK
