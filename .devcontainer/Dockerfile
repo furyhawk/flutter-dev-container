@@ -21,7 +21,8 @@ ARG USER_GID=$USER_UID
 
 #
 # Install needed packages, setup user anda clean up.
-RUN  apt update \
+RUN  dpkg --add-architecture i386 \
+	&& apt update \
 	&& apt install -y sudo \
 	&& apt install -y openjdk-17-jdk-headless --no-install-recommends \
 	&& apt install -y wget curl git xz-utils zip unzip --no-install-recommends \
