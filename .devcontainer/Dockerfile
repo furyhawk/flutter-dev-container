@@ -33,6 +33,7 @@ RUN	apt-get autoremove -y \
 	# Create a non-root user to use if preferred - see https://aka.ms/vscode-remote/containers/non-root-user.
 	# [Optional] Add sudo support for the non-root user
 RUN if ! getent group $USER_GID; then groupadd --gid $USER_GID $USERNAME; fi \
+	&& if id -u $USER_UID >/dev/null 2>&1; then USER_UID=$(($USER_UID + 1)); fi \
 	&& useradd -s /bin/bash --uid $USER_UID --gid $USER_GID -m $USERNAME \
 	&& echo $USERNAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USERNAME \
 	&& chmod 0440 /etc/sudoers.d/$USERNAME \
